@@ -1,0 +1,67 @@
+<?php
+/**
+ * trms_production_update_action.inc
+ *
+ * @package default
+ */
+
+
+/**
+ *
+ *
+ * @param unknown $node    (reference)
+ * @param unknown $context (optional)
+ */
+function trms_production_update_action(&$node, $context = array()) {
+
+	node_save($node);
+
+	$show_date_str = substr($node->field_production_date[0]['value'], 0, 10);
+	$hours = substr($node->field_duration[0]['value'], 0, 2);
+	$minutes = substr($node->field_duration[0]['value'], 3, 2);
+	$seconds = substr($node->field_duration[0]['value'], 5, 2);
+	$length = ($hours * 3600) + ($minutes * 60) + $seconds;
+
+	$url = variable_get('trms_url');
+	$username = variable_get('trms_username');
+	$password = variable_get('trms_password');
+	$channel = variable_get('trms_channel');
+
+	try {
+		$client = new SoapClient($url . "/CablecastWS.asmx?WSDL");
+		$params = array('ShowID' => $node->field_show_id[0]['value']);
+		$old_record = $client->GetShowInformation($params);
+	} catch (SOAPFault $exception) {
+		form_set_error('title', "Retrieving Show: " . $exception->getMessage());
+		return;
+	}
+
+
+	$params=array();
+	foreach ($old_record->GetShowInformationResult as $member=>$data) {
+		if ($data != NULL) {
+			$params[$member]=$data;
+		} else {
+			$params[$member]='';
+		}
+	}
+
+	$params['Title'] = $node->title;
+	// $old_record['CGTitle'] = $node->title;
+	$params['EventDate'] = $show_date_str;
+
+	print "<pre>";
+	print_r($params);
+	print "</pre>";
+	exit;
+
+	try {
+		$client = new SoapClient($url . "/CablecastWS.asmx?WSDL");
+		$result = $client->UpdateShowRecord($params);
+	} catch (SOAPFault $exception) {
+		form_set_error('title', "Updating Show: " . $exception->getMessage());
+	}
+
+
+
+}

@@ -1,0 +1,41 @@
+<?php
+
+function trms_producers() {
+
+$items = array();
+
+try {
+  $client = new SoapClient("http://video.greenwich.org:81/CablecastWS/CablecastWS.asmx?WSDL");
+  $params = array('ChannelID' => 1); 
+  $result = $client->GetProducers($params);
+} catch (SOAPFault $exception) {
+   return $items;
+}
+
+
+foreach ($result->GetProducersResult->Producer as $item) {
+$items[$item->ProducerID] = $item->Name;
+}
+return $items;
+}
+
+function trms_categories() {
+
+$items = array();
+
+try {
+  $client = new SoapClient("http://video.greenwich.org:81/CablecastWS/CablecastWS.asmx?WSDL");
+  $params = array('ChannelID' => 1); 
+  $result = $client->GetProducers($params);
+} catch (SOAPFault $exception) {
+   return $items;
+}
+
+
+foreach ($result->GetProducersResult->Producer as $item) {
+$items[$item->ProducerID] = $item->Name;
+}
+return $items;
+}
+
+

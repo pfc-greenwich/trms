@@ -1,0 +1,44 @@
+<?php
+
+$module_path = drupal_get_path('module', 'trms_actions');
+
+include($module_path . '/includes/trms_production_add_action.inc');
+include($module_path . '/includes/trms_production_update_action.inc');
+
+
+
+
+function trms_actions_action_info() {
+  return array(
+
+    'trms_production_add_action' => array(
+      'description' => t('Add Production to TRMS'),
+      'type' => 'node',
+      'configurable' => FALSE,
+      'hooks' => array(
+        'nodeapi' => array('insert'),
+        ),
+      ),
+
+    'trms_production_update_action' => array(
+      'description' => t('Update Production in TRMS'),
+      'type' => 'node',
+      'configurable' => FALSE,
+      'hooks' => array(
+        'nodeapi' => array('update'),
+        ),
+      ),
+
+    'trms_production_delete_action' => array(
+      'description' => t('Delete Production from TRMS'),
+      'type' => 'node',
+      'configurable' => FALSE,
+      'hooks' => array(
+        'nodeapi' => array('delete'),
+        ),
+      ),
+
+
+    );
+
+}

@@ -1,0 +1,56 @@
+<?php
+/**
+ * trms_production_form.module
+ *
+ * @package default
+ */
+$module_path = drupal_get_path('module', 'trms_production_form');
+include($module_path . '/trms_select_fields.inc');
+
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * The function is named modulename_form_alter.
+ *
+ * @param unknown $form       (reference)
+ * @param unknown $form_state
+ * @param unknown $form_id
+ */
+function trms_production_form_form_alter(&$form, $form_state, $form_id) {
+	// Normally a switch is used because you may want to alter more than
+	// one form and it is easy to add a new case for each form.
+	switch ($form_id) {
+		// This is our form ID.
+	case 'show_node_form':
+		// Our kickin' mods go here.
+		//      return print_r($form);
+		//      break;
+		if ($form['#action'] == '/node/add/show') {
+			$form['trms_producers']['producer'] = array (
+			'#type' => 'select',
+			'#title' => t('Program Producer'),
+			'#options' => trms_producers(),
+			'#description' => t('Select the producer of this program'),
+			);
+			$form['trms_categories']['category'] = array (
+			'#type' => 'select',
+			'#title' => t('Program Category'),
+			'#options' => trms_categories(),
+			'#description' => t('Select the category of this program'),
+			);
+		}
+
+		$form['body_field']['body']['#title'] = "Location of Production";
+		$form['body_field']['body']['#type'] = "textfield";
+		$form['body_field']['body']['#size'] = 60;
+		foreach (element_children($form['body_field']['format']) as $key) {
+			$form['body_field']['format'][$key]['#default_value'] = '4'; // Text Only
+		}
+
+		break;
+	}
+}
+
+
+?>

@@ -1,0 +1,5 @@
+name = Production Form
+description = Hides several node add/edit fields, and makes the TRMS fields read-only
+dependencies[] = 'trms'
+package = "Tightrope Media Server"
+core = 6.x

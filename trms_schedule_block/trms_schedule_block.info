@@ -1,0 +1,5 @@
+name = Schedule Block
+description = Provides a schedule listing for the current day
+dependencies[] = 'trms'
+package = "Tightrope Media Server"
+core = 6.x

@@ -1,0 +1,101 @@
+<?php
+/**
+ * trms_schedule_block.module
+ *
+ * @package default
+ */
+
+
+/**
+ *
+ *
+ * @param unknown $op    (optional)
+ * @param unknown $delta (optional)
+ * @param unknown $edit  (optional)
+ * @return unknown
+ */
+function trms_schedule_block_block($op = 'list', $delta = 0, $edit = array()) {
+	// set up an empty array which will contain the block contents
+	$block = array();
+
+	switch ($op) {
+	case "list":
+		// Generate listing of blocks from this module, for the admin/block page
+		$block[0]["info"] = t('TRMS Current Schedule');
+		break;
+
+	case "view":
+		$url = variable_get('trms_url');
+		$block_content = '';
+		$block['subject'] = "Today's Schedule";
+		$now_date_str = date("Y-m-d\TH:i:00", time() - 3600);
+		$date_str = date("Y-m-d\T00:00:00");
+		$channel = variable_get('trms_schedule_block_channel_id', 1);
+		try {
+			$client = new SoapClient($url . "/CablecastWS.asmx?WSDL");
+			$params = array('ChannelID' => $channel,
+				'restrictToShowID' => 0,
+				'FromDate' => $date_str,
+				'ToDate' => $date_str
+			);
+
+			$result = $client->GetScheduleInformation($params);
+		} catch (SOAPFault $exception) {
+			$block_content = t("The Schedule is not available.");
+			break;
+		}
+		$block_content = "<!-- $date_str -->";
+		$block_content .= "<table border='0' cellpadding='4'>";
+		foreach ($result->GetScheduleInformationResult->ScheduleInfo as $show) {
+			$block_content .= "<tr><td><b>";
+			$block_content .= date("g:i A", strtotime($show->StartTime));
+			$block_content .= "</b></td><td>";
+			$block_content .= "<a href='/schedule/program?id=";
+			$block_content .= $show->ShowID;
+			$block_content .= "'>";
+			$block_content .= $show->ShowTitle;
+			$block_content .= "</a>";
+			/*
+    $show_params = array('ShowID' => $show->ShowID,
+		  );
+    $show_result = $client->GetShowInformation($show_params);
+    foreach ($show_result->GetShowInformationResult->CustomFields as $custom) {
+       if ($custom->Name == "Sponsor Text") {
+          print "<br/><i>";
+          print $custom->Value;
+          print "</i>";
+       }
+    }
+*/
+			$block_content .= "</td></tr>";
+		}
+		$block_content .= "</table>";
+		$block['content'] = $block_content;
+		break;
+
+	case "save":
+variable_set('trms_schedule_block_channel_id', $edit['trms_schedule_block_channel_id']);
+		break;
+
+	case "configure":
+      $form = array();
+      if ($delta == 'configurable-text') {
+        // All we need to provide is a text field, Drupal will take care of
+        // the other block configuration options and the save button.
+        $form['trms_schedule_block_channel_id'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('TRMS Channel'), 
+          '#size' => 2, 
+          '#description' => t('Choose the channel which will appear in this schedule block.');
+          '#default_value' => variable_get('trms_schedule_block_channel_id'),
+        );
+      }
+      return $form;
+		break;
+	}
+
+	return $block;
+}
+
+
+?>

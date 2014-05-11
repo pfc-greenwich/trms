@@ -1,0 +1,5 @@
+name = Scheduler
+description = Automatically schedules and assigns show IDs when a specific content type is added,deleted, or updated.
+dependencies[] = trms
+package = "Tightrope Media Server"
+core = 6.x
